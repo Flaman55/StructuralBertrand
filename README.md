@@ -107,7 +107,8 @@ generic convexity inequality, adapted from Mathlib's analysis (not its Bertrand
 file). With the lower bound `4^n < n · C(2n,n)` (`Nat.four_pow_lt_mul_centralBinom`)
 they give `4^n < 4^n`, a contradiction (`binomial_contradiction`,
 `BinomialCertificate.lean`). Small windows `2 < n < 512` are closed by a local
-computational oracle (`small_window_oracle`, `native_decide`).
+computational oracle (`small_window_oracle`), chunked into fixed-width ranges glued
+by an auxiliary lemma and discharged by kernel-checked `decide` — no `native_decide`.
 
 **Provenance statement (for referees).** The development is neither "independent
 of Erdős" nor "Erdős in disguise". An independent structural reduction shows
@@ -142,33 +143,37 @@ grep -rn "Nat.bertrand[^_]\|exists_prime_lt" StructuralBertrand
 
 ## Trust base
 
-Beyond the Lean kernel and Mathlib, several finite facts are discharged with
-`native_decide` (compiled evaluation): the small-window oracles for `n < 512`
-(`small_window_oracle`; and the parallel `small_window_prime` in `Erdos.lean`) and
-`jacobsthal_2310`. `native_decide` extends
-the trusted base from the Lean kernel to the Lean compiler; auditors who reject
-it can re-verify those finite statements by any external computation — each is a
-bounded, explicitly decidable check.
+The main theorem's import closure discharges its finite facts with kernel-checked
+`decide` only — the small-window oracle (`small_window_oracle`, `BinomialCertificate.lean`)
+and the Jacobsthal gap bounds (`jacobsthal_210`, `jacobsthal_2310`, `Rings.lean`) are each
+split into fixed-width chunks glued by an auxiliary lemma, specifically so that they
+stay within the kernel's `decide` (not `native_decide`). `native_decide` (compiled
+evaluation) appears exactly once in the repository, in `Erdos.lean`'s
+`small_window_prime` — the off-path instance A (`erdos_certificate`) kept only for the
+modularity comparison in `Certificate.lean`; it is not reachable from `Main` (see the
+module dependency graph above). Auditors who reject `native_decide` outright can
+therefore ignore `Erdos.lean` entirely and still have a fully `decide`-only path to
+`bertrand_chebyshev`.
 
 ## Exact versions (required for reproduction)
 
 | Component | Pin |
 |---|---|
-| Lean toolchain | `leanprover/lean4:v4.14.0` (file `lean-toolchain`) |
-| Mathlib | tag `v4.14.0`, commit `4bbdccd9c5f862bf90ff12f0a9e2c8be032b9a84` |
+| Lean toolchain | `leanprover/lean4:v4.28.0` (file `lean-toolchain`) |
+| Mathlib | tag `v4.28.0`, commit `8f9d9cff6bd728b17a24e163c9402775d9e6a365` |
 
 Transitive dependencies (from `lake-manifest.json`, manifest format `1.1.0`):
 
 | Package | Commit |
 |---|---|
-| batteries | `8d6c853f11a5172efa0e96b9f2be1a83d861cdd9` |
-| aesop | `5a0ec8588855265ade536f35bcdcf0fb24fd6030` |
-| proofwidgets | `68280daef58803f68368eb2e53046dabcd270c9d` |
-| Qq | `303b23fbcea94ac4f96e590c1cad6618fd4f5f41` |
-| importGraph | `519e509a28864af5bed98033dd33b95cf08e9aa7` |
-| LeanSearchClient | `d7caecce0d0f003fd5e9cce9a61f1dd6ba83142b` |
-| plausible | `42dc02bdbc5d0c2f395718462a76c3d87318f7fa` |
-| Cli | `726b3c9ad13acca724d4651f14afc4804a7b0e4d` |
+| batteries | `495c008c3e3f4fb4256ff5582ddb3abf3198026f` |
+| aesop | `f642a64c76df8ba9cb53dba3b919425a0c2aeaf1` |
+| proofwidgets | `be3b2e63b1bbf496c478cef98b86972a37c1417d` |
+| Qq | `b8f98e9087e02c8553945a2c5abf07cec8e798c3` |
+| importGraph | `85b59af46828c029a9168f2f9c35119bd0721e6e` |
+| LeanSearchClient | `c5d5b8fe6e5158def25cd28eb94e4141ad97c843` |
+| plausible | `55c8532eb21ec9f6d565d51d96b8ca50bd1fbef3` |
+| Cli | `4f10f47646cb7d5748d6f423f4a07f98f7bbcc9e` |
 
 The pinned commits are recorded in `lake-manifest.json`; keep that file under
 version control so the exact dependency graph is reproducible.
@@ -201,7 +206,7 @@ replayed from Mathlib's own files are expected and harmless).
 | `StructuralBertrand/Newton.lean` | The central binomial coefficient and the window's prime content: S1 divisibility, lower bound `4^n ≤ (2n+1)·C(2n,n)` from the Pascal row, empty window ⇒ old sources only |
 | `StructuralBertrand/BinomialBound.lean` | Upper bound `window_centralBinom_le`, reproved from Legendre/Kummer + primorial primitives (no Bertrand import) |
 | `StructuralBertrand/Threshold.lean` | Prime-free size inequality `threshold_inequality` (real convexity; adapted from Mathlib's analysis, not its Bertrand file) |
-| `StructuralBertrand/BinomialCertificate.lean` | **Self-contained kernel**: `binomial_contradiction` — two bounds on `C(2n,n)` + local `native_decide` oracle; imports no `Mathlib.NumberTheory.Bertrand` |
+| `StructuralBertrand/BinomialCertificate.lean` | **Self-contained kernel**: `binomial_contradiction` — two bounds on `C(2n,n)` + local chunked, kernel-checked `decide` oracle (`small_window_oracle`, no `native_decide`); imports no `Mathlib.NumberTheory.Bertrand` |
 | `StructuralBertrand/GPS_StateMachine.lean` | Generative window; regime dispatch; `dense_sieve_survivor` (routes to `binomial_contradiction`); `prime_in_window` |
 | `StructuralBertrand/Certificate.lean` | Modular interface `WindowCertificate`; instances `erdos_certificate` (via Mathlib) and `binomial_certificate` (self-contained) |
 | `StructuralBertrand/Erdos.lean` | Instance A (off the main path): `erdos_contradiction` via Mathlib's two `C(2n,n)` inequalities — kept only for the modularity comparison |
@@ -209,10 +214,9 @@ replayed from Mathlib's own files are expected and harmless).
 
 ## License
 
-This subproject is licensed under the **Apache License, Version 2.0** — see
-[`LICENSE`](LICENSE). This overrides the repository-root license for this directory: the
-project depends on and adapts Mathlib (Apache-2.0), so its licensing must be
-Apache-2.0-compatible. In particular `StructuralBertrand/Threshold.lean` adapts a prime-free
+This repository is licensed under the **Apache License, Version 2.0** — see
+[`LICENSE`](LICENSE). The project depends on and adapts Mathlib (Apache-2.0), so its
+licensing is Apache-2.0-compatible throughout. In particular `StructuralBertrand/Threshold.lean` adapts a prime-free
 size inequality from Mathlib (authors Patrick Stevens and Bolton Bailey); the attribution is
 recorded in [`NOTICE`](NOTICE). All other files are original to this development and depend on
 Mathlib only as a library.
