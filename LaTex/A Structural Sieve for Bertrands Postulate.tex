@@ -583,6 +583,15 @@ dense regime is settled by the object below, not by any gap function.
 \lean{jacobsthal\_thirty}, \lean{jacobsthal\_210}, \lean{jacobsthal\_2310}, and
 \lean{windowHasVoid\_3} \dots \lean{windowHasVoid\_83} (\lean{Rings.lean}).}
 
+This closure is independent of the assembled proof, not a stage feeding into it:
+\lean{structural\_sieve\_survivor} never branches on $P\le83$, and dispatches every
+prime $P$ through the sparse/dense split of \S\ref{sec:atom}, the dense side closed
+uniformly by \lean{binomial\_contradiction} at the single threshold $n=512$
+(\S\ref{sec:erdos}). Theorem~\ref{thm:jac} thus supplies a second, self-contained
+certificate for these finitely many scales, disjoint in its derivation from
+Theorem~\ref{thm:window}; it is retained to exhibit a regime that closes with no
+counting at all, not because the main theorem's proof term invokes it.
+
 What remains is the \emph{dense} regime at large $P$. Here the structural mechanism has a
 definite reach and a definite limit, and it is worth stating both precisely. At every
 \emph{concrete} scale $P$ the construction decides the window outright: the sieve is
