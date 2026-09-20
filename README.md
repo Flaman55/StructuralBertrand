@@ -69,33 +69,44 @@ Three layers, with distinct provenance:
 **1. The structural reduction (independent, this project).**
 LPF bound, Zero Effective Force, structural weight `w ≥ 1`, self-containment
 (*why `2·P_max`*), the sparse regime closed unconditionally by a union bound
-(`Truncated.lean`), the small anchors `P_k ≤ 83` closed by a sufficient coprimality
-condition on the *active-covering primes* (`p² ≤ 2P_k`) via `g(30)=6`, `g(210)=10`,
-`g(2310)=14` (`Rings.lean`) — a loose external upper bound from a smaller modulus,
-**not** the object's own gap; the deterministic zone `(P_k, P_k²)`; and the disjoint
-minFac-fiber telescope. No structural closure of the existence atom in the general
-window was found; the atom is closed on the central binomial coefficient below.
+(`Truncated.lean`), the deterministic zone `(P_k, P_k²)`, and the disjoint
+minFac-fiber telescope are all exercised by `bertrand_chebyshev`'s proof term.
+`Rings.lean` also proves a separate, **off-path** closure for the small anchors
+`P_k ≤ 83` — a sufficient coprimality condition on the *active-covering primes*
+(`p² ≤ 2P_k`) via the Jacobsthal-type gap bounds `g(30)=6`, `g(210)=10`,
+`g(2310)=14` — a loose external upper bound from a smaller modulus, **not** the
+object's own gap. It is kept in the repository as an alternative route, but it is
+**not** invoked by the theorem's proof term: every `P_k`, small or large, is
+actually closed by the small-window oracle (`n < 512`) or the central-binomial
+certificate (`n ≥ 512`) described in §3. No structural closure of the existence
+atom in the general window was found; the atom is closed on the central binomial
+coefficient below.
 
 (On the Jacobsthal regimes: `g(M)` is the global gap of a *fixed* modulus `M`, and
 here `M` is the product of the active-covering primes `p² ≤ 2P_k` — a subset that
 coincides with a smaller, foreign object, not the full base. It is not the
 object's own quantity; `g(M) ≤ P_k` is only a sufficient upper proxy that happens
-to close the small anchors.)
+to close the small anchors in this off-path alternative — not in the theorem's
+actual proof term.)
 
-**2. The central binomial coefficient (structural, this system).**
-The quantitative atom is closed on the central binomial coefficient `C(2n,n)`:
-`4^n = (1+1)^{2n}` is the sum of the `2n+1` binomial coefficients of order `2n`. Its
-prime factorization in the window is governed by the paper's S1 purity law: a new
-source `q ∈ (n, 2n]` divides `C(2n,n)` exactly once, because its first multiple `2q`
-exceeds `2n`. Formally: `window_primes_prod_dvd_centralBinom`
-(Rings.lean/Newton.lean). The coefficient is used **structurally**: its prime
-factorization records the window's content, and the object is reached from the S1
-purity law, not taken from prior work. Erdős reached the same object in 1932 by a
-different route; this is a convergence on one mathematical object, and prior use
-carries no exclusivity over it. The lower bound `4^n ≤ (2n+1)·C(2n,n)` is proved from
-scratch from the Pascal row (`four_pow_le_newton`, Newton.lean).
+**2. The central binomial coefficient — an off-path alternative derivation
+(`Rings.lean`/`Newton.lean`), not used by the proof term.**
+`Rings.lean`/`Newton.lean` explore a second way to reach and bound the central
+binomial coefficient `C(2n,n)`: `4^n = (1+1)^{2n}` is the sum of the `2n+1`
+binomial coefficients of order `2n`, and its prime factorization in the window is
+governed by the paper's S1 purity law: a new source `q ∈ (n, 2n]` divides
+`C(2n,n)` exactly once, because its first multiple `2q` exceeds `2n`. Formally:
+`window_primes_prod_dvd_centralBinom` (Rings.lean/Newton.lean), with the lower
+bound `4^n ≤ (2n+1)·C(2n,n)` proved from scratch from the Pascal row
+(`four_pow_le_newton`, Newton.lean). This route is original — the object is
+reached from the S1 purity law, not taken from prior work, and Erdős reached the
+same object in 1932 by a different route, a convergence with no exclusivity over
+it — but it is **not** the derivation `binomial_contradiction` actually uses: the
+proof term's two bounds on `C(2n,n)` are the ones in §3 (`BinomialBound.lean`,
+`Threshold.lean`, and Mathlib's own lower bound).
 
-**3. The quantitative certificate (self-contained, this project).**
+**3. The quantitative certificate (self-contained, this project) — the bounds the
+proof term actually uses.**
 For `n ≥ 512` the two bounds on `C(2n,n)` are combined. The upper bound
 (`window_centralBinom_le`, `BinomialBound.lean`) — if the window is empty, every
 prime factor of `C(2n,n)` is `≤ 2n/3`, so the product is at most
@@ -113,11 +124,11 @@ by an auxiliary lemma and discharged by kernel-checked `decide` — no `native_d
 **Provenance statement (for referees).** The development is neither "independent
 of Erdős" nor "Erdős in disguise". An independent structural reduction shows
 *why* the postulate collapses to a single atom and closes entire regimes without
-any counting; the atom is then closed on the central binomial coefficient `C(2n,n)`,
-whose prime factorization records the window's content via the S1 purity law, reached
-from this construction and not taken from prior work. The two bounds on `C(2n,n)` are
-reproved in-project (`BinomialBound.lean`, `Threshold.lean`), so the closing
-certificate imports no Mathlib Bertrand theorem. Erdős reached the same object in
+any counting; the atom is then closed on the central binomial coefficient `C(2n,n)`
+via the two bounds reproved in-project (`BinomialBound.lean`, `Threshold.lean`; see
+§3) — **not** via the S1-purity-law derivation of §2, which is a separate,
+off-path characterization of the same object, also original and not taken from
+prior work. So the closing certificate imports no Mathlib Bertrand theorem. Erdős reached the same object in
 1932 by a different path: a convergence on one object, with historical priority of
 use but no exclusivity over it. Modularity is a theorem (`Certificate.lean`,
 `WindowCertificate`): the atom's closure depends only on an abstract certificate,
@@ -144,10 +155,12 @@ grep -rn "Nat.bertrand[^_]\|exists_prime_lt" StructuralBertrand
 ## Trust base
 
 The main theorem's import closure discharges its finite facts with kernel-checked
-`decide` only — the small-window oracle (`small_window_oracle`, `BinomialCertificate.lean`)
-and the Jacobsthal gap bounds (`jacobsthal_210`, `jacobsthal_2310`, `Rings.lean`) are each
-split into fixed-width chunks glued by an auxiliary lemma, specifically so that they
-stay within the kernel's `decide` (not `native_decide`). `native_decide` (compiled
+`decide` only: the small-window oracle (`small_window_oracle`, `BinomialCertificate.lean`)
+is split into fixed-width chunks glued by an auxiliary lemma, specifically so that it
+stays within the kernel's `decide` (not `native_decide`). (`Rings.lean`'s Jacobsthal
+gap bounds — `jacobsthal_210`, `jacobsthal_2310` — are chunked the same way, but they
+are the off-path alternative of §1: not part of `bertrand_chebyshev`'s import closure.)
+`native_decide` (compiled
 evaluation) appears exactly once in the repository, in `Erdos.lean`'s
 `small_window_prime` — the off-path instance A (`erdos_certificate`) kept only for the
 modularity comparison in `Certificate.lean`; it is not reachable from `Main` (see the
@@ -202,8 +215,8 @@ replayed from Mathlib's own files are expected and harmless).
 | `StructuralBertrand/Weight.lean` | Structural weight `w ≥ 1`; expansion capacity `M' < P·φ(M')` (Lemma 4.3, Cor. 4.5) |
 | `StructuralBertrand/SelfContained.lean` | Self-containment fixes the window width (*why `2` / why `P_min`*) |
 | `StructuralBertrand/Truncated.lean` | Sparse-regime positivity by union bound, unconditional |
-| `StructuralBertrand/Rings.lean` | Ring collective: void/coverage dichotomy, determinism boundary, small-anchor closures `P_k ≤ 83` (sufficient gap bound on the active-covering rings), minFac telescope, interference (Legendre) identity, S1 bridge to `C(2n,n)`, generalized family `(P_max, P_min·P_max]` |
-| `StructuralBertrand/Newton.lean` | The central binomial coefficient and the window's prime content: S1 divisibility, lower bound `4^n ≤ (2n+1)·C(2n,n)` from the Pascal row, empty window ⇒ old sources only |
+| `StructuralBertrand/Rings.lean` | Ring collective: void/coverage dichotomy, determinism boundary, minFac telescope, interference (Legendre) identity, generalized family `(P_max, P_min·P_max]`; also the **off-path** small-anchor closures `P_k ≤ 83` (§1) and the S1 bridge to `C(2n,n)` (§2), neither used by `bertrand_chebyshev`'s proof term |
+| `StructuralBertrand/Newton.lean` | **Off-path** (§2): a second, unused derivation of the central binomial coefficient's window content — S1 divisibility, lower bound `4^n ≤ (2n+1)·C(2n,n)` from the Pascal row, empty window ⇒ old sources only |
 | `StructuralBertrand/BinomialBound.lean` | Upper bound `window_centralBinom_le`, reproved from Legendre/Kummer + primorial primitives (no Bertrand import) |
 | `StructuralBertrand/Threshold.lean` | Prime-free size inequality `threshold_inequality` (real convexity; adapted from Mathlib's analysis, not its Bertrand file) |
 | `StructuralBertrand/BinomialCertificate.lean` | **Self-contained kernel**: `binomial_contradiction` — two bounds on `C(2n,n)` + local chunked, kernel-checked `decide` oracle (`small_window_oracle`, no `native_decide`); imports no `Mathlib.NumberTheory.Bertrand` |
