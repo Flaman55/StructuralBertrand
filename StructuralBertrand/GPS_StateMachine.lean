@@ -106,10 +106,14 @@ window always leaves a survivor. Bertrand falls out as a corollary in `Main`.
 
 Dispatch by regime (explicit union-bound threshold from `Truncated`):
   • SPARSE regime → closed here, structurally (`truncated_not_sieve_closed`), with no atom;
-  • DENSE regime  → `dense_sieve_survivor`, which CONSUMES the weight (the average density),
-                    rather than being "Bertrand in disguise". Here other fundamental
-                    techniques (control of the `2^ω` error) could be used without appealing
-                    to Bertrand.
+  • DENSE regime  → `dense_sieve_survivor`, closed directly on the central binomial
+                    coefficient via `binomial_contradiction`, rather than being "Bertrand in
+                    disguise". The average-density fact computed by `weight_density_bridge`
+                    is threaded into `dense_sieve_survivor`'s signature but is NOT consumed
+                    by its proof (see that lemma's own docstring) -- it is recorded as
+                    structural content about the setting, not exercised by this regime's
+                    closure. Here other fundamental techniques (control of the `2^ω` error)
+                    could be used without appealing to Bertrand.
 -/
 
 /-- Bridge: if `n` is not covered by any prime `< Pk`, then it is coprime to
@@ -124,8 +128,13 @@ lemma coprime_primorial_of_uncovered {Pk n : ℕ}
   exact (hp_prime.coprime_iff_not_dvd.mpr (h p hp)).symm
 
 /-- **Bridge to the weight.** For a prime `Pk > 2` the preceding base (primes `< Pk`) has
-    average density `> 1`:  `M' < Pk · φ(M')`, where `M' = primorial_below Pk`. CONSUMES
-    `structural_weight_ge_one` (Weight.lean), making the weight load-bearing. -/
+    average density `> 1`:  `M' < Pk · φ(M')`, where `M' = primorial_below Pk`. Built from
+    `structural_weight_ge_one` (Weight.lean). Note: the density fact this bridge produces is
+    threaded into `structural_sieve_survivor` and on into `dense_sieve_survivor`'s
+    signature, but `dense_sieve_survivor`'s own proof does not use it (parameter
+    `_hdensity`) -- the dense regime closes directly on `binomial_contradiction` instead.
+    The weight chain is correct and this bridge is genuine structural content about the
+    setting, but it is not load-bearing for the current proof of Bertrand's postulate. -/
 lemma weight_density_bridge {Pk : ℕ} (hPk : Nat.Prime Pk) (hPk3 : 2 < Pk) :
     primorial_below Pk < Pk * Nat.totient (primorial_below Pk) := by
   set M' := primorial_below Pk with hM'
@@ -190,8 +199,12 @@ lemma weight_density_bridge {Pk : ℕ} (hPk : Nat.Prime Pk) (hPk3 : 2 < Pk) :
     prime in the window is always coprime to the base — `prime_in_window_coprime_primorial`) the
     window would contain no prime, contradicting the quantitative kernel `binomial_contradiction`
     (BinomialCertificate.lean, self-contained). The object used is the central binomial
-    coefficient `C(2Pk,Pk)`, whose prime content in the window is governed by the S1 purity law
-    (Rings/Newton). -/
+    coefficient `C(2Pk,Pk)`; its prime content in the window is bounded by the factorization
+    upper bound reproved in `BinomialBound.lean` from Legendre/Kummer primitives, combined
+    with the threshold inequality (`Threshold.lean`) and Mathlib's own central-binomial
+    lower bound. This path imports neither `Rings.lean` nor `Newton.lean` -- those modules'
+    Jacobsthal-gap and self-contained-window machinery are off-path alternatives, not part
+    of this proof term (see their own module docstrings). -/
 theorem dense_sieve_survivor {Pk : ℕ} (_hPk : Nat.Prime Pk) (hPk3 : 2 < Pk)
     (_hdensity : primorial_below Pk < Pk * Nat.totient (primorial_below Pk)) :
     (gps_free Pk).Nonempty := by

@@ -512,16 +512,25 @@ single positivity statement $P-\mathrm{cov}(P)>0$.
 \Formal{\lean{coveredCount}, \lean{gps\_window\_card},
 \lean{windowHasVoid\_iff\_coveredCount\_lt}, \lean{coveredCount\_lt\_imp\_nonempty}.}
 
-A structural preliminary shows the reduction is not vacuous: the largest ring
-$P_{\max}$ exerts no force inside its own window (its first multiple $2P_{\max}$ is the
-lone edge point), and the previous base carries a weight $w=P_{\max}\cdot\varphi(M)/M\ge1$.
-The weight being $\ge1$ is the necessary condition for a void; the atom is the sufficiency.
+A structural preliminary records that the largest ring $P_{\max}$ exerts no force inside
+its own window (its first multiple $2P_{\max}$ is the lone edge point), and that the
+previous base carries a weight $w=P_{\max}\cdot\varphi(M)/M\ge1$, proved once and for all,
+independently of scale. This weight is structural content about the setting, not a
+hypothesis either regime's closure consumes below: the sparse regime closes by a union
+bound (Theorem~\ref{thm:jac} and the paragraph preceding it), and the dense regime closes
+on the central binomial coefficient (\S\ref{sec:erdos}), neither appealing to $w\ge1$. It is
+recorded here because it is the reduction's own by-product, not because the atom's proof
+term invokes it.
 
 \Formal{\lean{zero\_effective\_force} (\lean{ZeroForce.lean}); weight
 $w\ge1$: \lean{WeightGeOne}, \lean{weight\_base}, \lean{weight\_step},
 \lean{structural\_weight\_ge\_one}, \lean{prev\_base\_cannot\_cover\_window}
 (\lean{Weight.lean}); bridge \lean{weight\_density\_bridge}; anchor idle
-\lean{anchor\_idle\_in\_own\_window}.}
+\lean{anchor\_idle\_in\_own\_window}. This chain is proved and wired through
+\lean{structural\_sieve\_survivor}'s signature, but \lean{dense\_sieve\_survivor} --- the
+lemma that actually closes the dense regime --- takes the resulting density fact as an
+unused parameter (\lean{\_hdensity}) and proves the window nonempty directly from
+\lean{binomial\_contradiction} instead.}
 
 The covered count decomposes disjointly by least prime factor, and each fiber is, by an
 exact bijection, the \emph{same} coprimality count one scale down --- the recursion engine
@@ -677,6 +686,16 @@ in $(n,2n]$ it is $\le n$.
 
 \Formal{\lean{centralBinom\_prime\_factor\_le} (\lean{Newton.lean}).}
 
+The purity law and the two bounds above (Theorems~\ref{thm:s1}--\ref{thm:upper}) are proved
+in \lean{Rings.lean} and \lean{Newton.lean} and were the construction's first route to
+closure; they remain true and are kept in the development. The main theorem's proof term,
+however, closes the dense regime by a later, independent route (\S\ref{sec:erdos}): a
+factorization upper bound reproved from scratch in \lean{BinomialBound.lean}, combined with
+Mathlib's own central-binomial lower bound, rather than through \lean{Newton.lean}'s
+in-project lower bound or \lean{Rings.lean}'s purity-law upper bound. Theorems
+\ref{thm:s1}--\ref{thm:upper} are retained as an alternative derivation of the same closing
+idea, not because \lean{binomial\_contradiction} (\S\ref{sec:erdos}) invokes them.
+
 %======================================================================
 \section{Closing the extremal window: the self-contained certificate}
 \label{sec:erdos}
@@ -692,10 +711,12 @@ appeal to compiled evaluation.
 \Formal{\lean{small\_window\_oracle}, by \lean{decide} (the range split via
 \lean{interval\_cases} into blocks the kernel evaluator can handle in one call).}
 
-For $n\ge512$ the two bounds are combined. Suppose $(n,2n]$ has no prime.
-Theorem~\ref{thm:upper} bounds $\binom{2n}{n}$ by its old-source content, at most
-$(2n)^{\sqrt{2n}}\,4^{2n/3}$; combined with the lower bound and the size threshold one
-obtains $4^n<4^n$, a contradiction.
+For $n\ge512$ the closure uses a separate pair of bounds from \S\ref{sec:newton}'s
+purity-law route: Mathlib's own central-binomial lower bound, and an old-source upper
+bound on $\binom{2n}{n}$ reproved independently in \lean{BinomialBound.lean} (at most
+$(2n)^{\sqrt{2n}}\,4^{2n/3}$, the same shape as Theorem~\ref{thm:upper} but not that
+theorem). Suppose $(n,2n]$ has no prime; combining this lower bound, this upper bound, and
+the size threshold below yields $4^n<4^n$, a contradiction.
 
 \begin{theorem}[Quantitative kernel]\label{thm:erdos}
 For $2<n$, if no prime lies in $(n,2n]$ then a contradiction follows. Hence every window

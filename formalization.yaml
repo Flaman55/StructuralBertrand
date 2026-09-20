@@ -208,7 +208,14 @@ alignment:
       lean: "StructuralBertrand.structural_bertrand_chebyshev"
       module: "StructuralBertrand/Main.lean"
       status: "proved"
-      note: ""
+      note: >
+        The signature carries three explicit hypotheses (_hprev_wt, _hphi_mult, _hphi_pos)
+        characterizing the average-density/weight setting; they are underscore-prefixed
+        because this theorem's own proof does not use them (it derives everything through
+        exists_coprime_in_window instead, which recomputes the needed facts internally via
+        GPS_StateMachine.weight_density_bridge). The weight chain they name is real,
+        proved content (Weight.lean), but not load-bearing for this version of the proof --
+        do not read their presence as the argument depending on them.
     - source: "Corollary 6.1 (Classical Bertrand-Chebyshev)"
       lean: "StructuralBertrand.bertrand_chebyshev"
       module: "StructuralBertrand/Main.lean"
@@ -218,12 +225,17 @@ alignment:
       lean: "StructuralBertrand.jacobsthal_210"
       module: "StructuralBertrand/Rings.lean"
       status: "proved"
-      note: "Chunked kernel-checked decide"
+      note: >
+        Chunked kernel-checked decide. Off-path: part of Rings.lean's small-anchor
+        closure, an alternative derivation kept for reference (see status.scope) -- not
+        invoked by bertrand_chebyshev's proof term.
     - source: "Jacobsthal gap bound, g(2310) = 14"
       lean: "StructuralBertrand.jacobsthal_2310"
       module: "StructuralBertrand/Rings.lean"
       status: "proved"
-      note: "11 chunks of width 210, glued; replaces an earlier native_decide"
+      note: >
+        11 chunks of width 210, glued; replaces an earlier native_decide. Off-path, same
+        basis as the g(210) entry above -- not invoked by bertrand_chebyshev's proof term.
     - source: "Small-window oracle (n < 512)"
       lean: "StructuralBertrand.small_window_oracle"
       module: "StructuralBertrand/BinomialCertificate.lean"

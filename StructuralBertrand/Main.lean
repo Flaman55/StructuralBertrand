@@ -8,9 +8,19 @@ import Mathlib.Tactic
 /-!
 # Main.lean — Theorem 5.1: Structural Bertrand–Chebyshev Bound
 
-**Note.** `Mathlib.NumberTheory.Bertrand` (and `Nat.bertrand`) are intentionally NOT
-imported. All results are derived from the structural lemmas of this project; the single
-quantitative step is isolated in `Erdos.erdos_contradiction`.
+**Note.** `Nat.bertrand`, Mathlib's proved Bertrand theorem, is neither imported nor
+invoked anywhere in this development. The proof does, however, adapt and reprove one
+supporting lemma from the same Mathlib module (`Mathlib.NumberTheory.Bertrand`): the
+real-valued threshold inequality `real_main_inequality`, reproved in `Threshold.lean` from
+`Mathlib.Analysis.Convex.SpecificFunctions.*` primitives rather than imported directly (see
+that file's own docstring, and `formalization.yaml`'s `sources` entry for it). The
+quantitative step this file's argument bottoms out in is `exists_coprime_in_window`, which
+for large `M'` delegates to `exists_coprime_in_window_case3` (`GPS_StateMachine.lean`) and
+from there to `structural_sieve_survivor`'s dense regime, closed by
+`BinomialCertificate.binomial_contradiction` — a self-contained certificate that does not
+depend on `Mathlib.NumberTheory.Bertrand`. (`Erdos.erdos_contradiction` is a separate,
+Mathlib-based comparison instance kept for reference in `Certificate.lean`; it is not on
+this proof's path — see that file's own docstring.)
 
 ## Main argument
 
@@ -20,8 +30,9 @@ Assume, for contradiction, that `(P_k, 2·P_k]` contains no prime.
 2. `composites_covered_by_prev`: every composite `n` satisfies `n.minFac < P_k` or
    `n = 2·P_k`.
 3. In either case `gcd(n, M') ≥ 2`, so `n` is not coprime to `M'`.
-4. `exists_coprime_in_window` (via the GPS generative window = the Erdős kernel): the window
-   contains an element coprime to `M'` — a contradiction.
+4. `exists_coprime_in_window` (via the GPS structural sieve, closed on the central binomial
+   coefficient for large `M'`): the window contains an element coprime to `M'` — a
+   contradiction.
 
 Hence the window contains a prime.
 -/
