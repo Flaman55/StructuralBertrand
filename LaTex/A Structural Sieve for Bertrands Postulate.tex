@@ -119,7 +119,11 @@ statement about an exact count. What remains at that one point is quantitative, 
 we insert the lightest classical certificate --- which turns out to be Erd\H{o}s's pair of
 inequalities.
 
-Three things are new here. First, the window $(P_{\max},2P_{\max}]$ and, more generally,
+To the author's knowledge, following a literature comparison against the closest related
+material --- Jacobsthal's function and its primorial-restricted gap bounds
+\cite{jacobsthal1961,iwaniec1978}, and the generalized Bertrand-type window results of
+\cite{daspaul2019} --- three things distinguish this construction; \S\ref{sec:provenance}
+records the comparison this claim rests on and its limits. First, the window $(P_{\max},2P_{\max}]$ and, more generally,
 $(P_{\max},P_{\min}P_{\max}]$, together with the right endpoint $P_{\min}P_{\max}$, are
 \emph{derived} from the base $\mathcal{B}=\{q\ \text{prime}: q<P_{\max}\}$: the endpoint
 is exactly the buildability edge of the base, and self-containment provably fails one step
@@ -770,6 +774,26 @@ at which the self-containment structure is present.
 
 %======================================================================
 \section{Remarks and provenance}
+\label{sec:provenance}
+
+\paragraph{Comparison with prior work.}
+The construction's closest relatives in the literature are Jacobsthal's function $g(n)$,
+the largest gap between consecutive integers coprime to the primorial of the first $n$
+primes \cite{jacobsthal1961}, later sharpened by Iwaniec \cite{iwaniec1978}, and the
+generalized Bertrand-type window results of Das and Paul, who prove existence of a prime
+in $[n,kn]$ for general $k$ by direct counting and sieve estimates \cite{daspaul2019}. Both
+are thematically adjacent: Jacobsthal's function bounds gaps in exactly the reduced-base
+setting this paper's truncated arithmetic (\S\ref{sec:trunc}) sieves with, and Das--Paul's
+result generalizes the same window statement this paper's family (\S\ref{sec:family})
+assembles. Neither, to the author's knowledge, derives the window and its endpoint from the
+buildability edge of a prime base, or reduces the postulate to the single exact-count atom
+of \S\ref{sec:atom}; a search of the literature on Jacobsthal's function, on elementary and
+generalized proofs of Bertrand's postulate, and on primorial-coprimality sieve arguments did
+not surface a prior source assembling these three components in this form. This search is
+necessarily bounded --- it covers indexed literature (arXiv, standard references on
+Jacobsthal's function and Bertrand's postulate) and cannot rule out unindexed material such
+as course notes or unpublished manuscripts --- so the claim above is offered as a
+literature-grounded "to the author's knowledge," not as an assertion of absolute priority.
 
 \paragraph{Machine verification.}
 The development is checked in Lean~4 with Mathlib (toolchain pinned in the repository);

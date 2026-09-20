@@ -5,17 +5,22 @@ license: "Apache-2.0"
 project:
   name: "StructuralBertrand"
   description: >
-    A from-scratch structural proof of Bertrand's postulate (Chebyshev's strengthened
-    form: for every N > 1 there is a prime p with N < p <= 2N) in Lean 4, avoiding
-    Mathlib's existing Bertrand development entirely. The argument sieves every window
-    (P_k, 2*P_k] against the primorial of primes below P_k, closed by an explicit
-    Jacobsthal-gap bound and a finite small-window oracle, both via kernel-checked
-    `decide` (no `native_decide`). Zero sorries; depends only on the three standard
-    Lean axioms.
+    A structural proof of Bertrand's postulate (Chebyshev's strengthened form: for
+    every N > 1 there is a prime p with N < p <= 2N) in Lean 4, avoiding Mathlib's
+    existing Bertrand development entirely. The classical result (Bertrand 1845,
+    Chebyshev 1852) is independently proved via an original sieve strategy: the
+    argument reduces primality of the window (P_k, 2*P_k] to a coprimality condition
+    against the primorial of primes below P_k. The quantitative closure is a finite
+    oracle over small windows (n < 512, chunked kernel-checked `decide`) and, for
+    n >= 512, a self-contained factorization-based upper bound on the central
+    binomial coefficient combined with a threshold inequality (adapted from
+    Mathlib's Bertrand development) and Mathlib's own lower bound on the central
+    binomial coefficient — no `native_decide` anywhere in this closure. Zero
+    sorries; depends only on the three standard Lean axioms.
   authors: ["Artur Flamandzki"]
   license: "Apache-2.0"
   responsible_maintainers: ["Artur Flamandzki"]
-  result_type: "original"
+  result_type: "source-based"
   repository_role: >
     Substantive development: this repository contains the complete, self-contained
     proof development. It is not a thin wrapper pointing to formalization work hosted
@@ -29,32 +34,75 @@ sources:
   - title: "A Structural Sieve for Bertrand's Postulate"
     authors: ["Artur Flamandzki"]
     id: "https://github.com/Flaman55/StructuralBertrand/blob/main/LaTex/A%20Structural%20Sieve%20for%20Bertrands%20Postulate.pdf"
-    type: "original-proof"
+    type: "preprint"
     license: "Apache-2.0"
     author_endorsement: "n/a"
-    relationship: "other"
+    relationship: "independently-proves"
     note: >
-      `type: original-proof` / `relationship: other`: the mathematical content (the
-      structural sieve, its strategy, and all results) is first presented by this
-      formalization and its companion manuscript — not a formalization of any prior
-      external paper (see `result_type`/`repository_role` above). `author_endorsement:
-      n/a` because the source author and the formalization author are the same
-      person — there is no separate third party to endorse. The LaTeX prose itself
-      was drafted by the AI agent under the author's direction, formatted to match
-      Ramanujan Journal conventions; the author reviewed the draft at the level of
-      overall structure, scope, and format compliance (not sentence-by-sentence) and
-      directed that no unnecessary content be included. See `automation` below for
-      the same disclosure applied to the Lean formalization.
+      Bertrand's postulate (Chebyshev's strengthened form) is a classical result
+      (Bertrand 1845, Chebyshev 1852) — not original to this project — so under the
+      Palomar source-classification rule this is source-based, not an original-proof
+      entry: this formalization independently proves the known theorem. What IS
+      original is the proof strategy presented in this manuscript: a from-scratch
+      structural sieve against the primorial of preceding primes, avoiding
+      Mathlib.NumberTheory.Bertrand entirely (see `project.description`). `author_
+      endorsement: n/a` because the manuscript's author and the formalization's
+      author are the same person — there is no separate third party to endorse. The
+      LaTeX prose itself was drafted by the AI agent under the author's direction,
+      formatted to match Ramanujan Journal conventions; the author reviewed the
+      draft at the level of overall structure, scope, and format compliance (not
+      sentence-by-sentence) and directed that no unnecessary content be included.
+      See `automation` below for the same disclosure applied to the Lean
+      formalization. The manuscript's novelty claims (Introduction, "three things
+      are new here") are qualified as "to the author's knowledge" rather than
+      asserted as absolute: the manuscript's "Remarks and provenance" section now
+      documents a literature comparison against Jacobsthal's function and its
+      primorial-restricted gap bounds (Jacobsthal 1960/61; Iwaniec 1978) and
+      against generalized Bertrand-postulate window results (Das & Paul,
+      arXiv:1710.09891), explicitly stating the search is bounded to indexed
+      literature and cannot rule out unindexed sources.
+  - title: "real_main_inequality (Mathlib.NumberTheory.Bertrand)"
+    authors: ["The Mathlib Community"]
+    id: "https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/Bertrand.html"
+    type: "formalization"
+    license: "Apache-2.0"
+    author_endorsement: "n/a"
+    relationship: "adapts"
+    note: >
+      `StructuralBertrand/Threshold.lean`'s real-valued threshold inequality is
+      adapted verbatim from Mathlib's `Bertrand.real_main_inequality` (see that
+      module's own docstring), reproved from
+      `Mathlib.Analysis.Convex.SpecificFunctions.*` primitives rather than imported
+      directly, so this development does not depend on
+      `Mathlib.NumberTheory.Bertrand` itself. The other Mathlib lemma the
+      quantitative closure uses — the central-binomial-coefficient lower bound
+      `Nat.four_pow_lt_mul_centralBinom` — is standard general-purpose Mathlib
+      content, not part of Mathlib's own Bertrand development, so it is not listed
+      as a separate adapted source.
 
 status:
   scope: >
-    A from-scratch structural proof of Bertrand's postulate (Chebyshev's strengthened
-    form: for every N > 1 there is a prime p with N < p <= 2N), avoiding
-    Mathlib.NumberTheory.Bertrand entirely. The argument covers every window (P_k, 2*P_k]
-    for P_k prime via a coprimality sieve against the primorial of primes below P_k,
-    closed by an explicit Jacobsthal-function gap bound on small moduli (chunked,
-    kernel-checked `decide`, no `native_decide`) and a finite oracle over small windows
-    (n < 512, also chunked `decide`).
+    A structural proof of Bertrand's postulate (Chebyshev's strengthened form: for
+    every N > 1 there is a prime p with N < p <= 2N), avoiding
+    Mathlib.NumberTheory.Bertrand entirely. `StructuralBertrand.Main` reduces every
+    window (P_k, 2*P_k] for P_k prime to a coprimality condition against the
+    primorial of primes below P_k. The quantitative closure that discharges this
+    condition (`StructuralBertrand.GPS_StateMachine.prime_in_window`, via
+    `StructuralBertrand.BinomialCertificate.binomial_contradiction`) is: a finite
+    oracle over small windows (n < 512, sixteen chunks of kernel-checked `decide`,
+    no `native_decide`); and for n >= 512, a self-contained factorization-based
+    upper bound on the central binomial coefficient
+    (`StructuralBertrand.BinomialBound`, via Legendre/Kummer primorial primitives)
+    combined with a threshold inequality adapted from Mathlib's own Bertrand
+    development (`StructuralBertrand.Threshold`, see the `sources` entry for
+    `real_main_inequality`) and Mathlib's own lower bound on the central binomial
+    coefficient (`Nat.four_pow_lt_mul_centralBinom`). `StructuralBertrand.Rings`'s
+    Jacobsthal-gap reduction (`jacobsthal_210`/`jacobsthal_2310`,
+    `windowHasVoid_of_jacobsthal`) and the `Newton`/`SelfContained` modules are
+    independent alternative closures explored in this repository, kept for
+    reference — they are NOT part of the proof term for the main theorem
+    (`StructuralBertrand.bertrand_chebyshev`); see their own module docstrings and
+    `StructuralBertrand.Certificate`'s two named `WindowCertificate` instances.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -85,9 +133,13 @@ automation:
       prompting_notes: >
         Precise division of labor, disclosed for the record: the mathematical
         strategy (the structural sieve itself: reduction against the primorial of
-        preceding primes, the Jacobsthal-gap argument, the extremal-window bounds) is
-        the author's original work, conceived and specified prior to and independent
-        of any AI assistance. The agent's contribution was implementation-level: (1)
+        preceding primes, and the quantitative closure via a small-window oracle
+        plus the central-binomial-coefficient bound for larger n — see
+        `status.scope` for the exact decisive chain) is the author's original work,
+        conceived and specified prior to and independent of any AI assistance. The
+        Jacobsthal-gap reduction explored in `Rings.lean` is a kept-for-reference
+        alternative closure, not part of the proof term for the main theorem. The
+        agent's contribution was implementation-level: (1)
         translating already-specified mathematical statements into Lean 4 tactics and
         syntax; (2) diagnosing and fixing Lean-specific technical failures (parser
         errors, kernel stack-depth overflows, elaboration heartbeat timeouts); (3)
