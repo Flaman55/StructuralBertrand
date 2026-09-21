@@ -6,7 +6,13 @@ Prime Base and its Newton Closure"** (A. Flamandzki).
 
 **Status: fully verified — zero `sorry`, no extra axioms beyond Mathlib.**
 The entire chain, from the definition of the complete generative base (Def. 2.1)
-to `bertrand_chebyshev`, is machine-checked. The main theorem does **not** use
+to `bertrand_chebyshev`, is machine-checked. Two headline results are exact
+structural equivalences, not existence bounds: `StructuralBertrand.prime_iff_uncovered_by_prev`
+(window `(P_k, 2·P_k]`) and its generalization
+`StructuralBertrand.void_iff_prime_in_deterministic_zone` (the full deterministic
+zone `(P_k, P_k²)`, with the reach shown exact by `determinism_breaks_above`).
+`StructuralBertrand.bertrand_chebyshev` is a **corollary** of the first — see
+*Origin of the result* below for why. The main theorem does **not** use
 Mathlib's proof of Bertrand's postulate (`Nat.bertrand` /
 `Nat.exists_prime_lt_and_le_two_mul`), and its import closure does **not** contain
 `Mathlib.NumberTheory.Bertrand` at all: the quantitative atom is closed by a
@@ -16,32 +22,69 @@ self-contained binomial certificate (`binomial_contradiction`). See
 ## Origin of the result
 
 The starting observation is **not** Bertrand's. Bertrand (1845) conjectured, from
-tables, that every window `(n, 2n]` contains a prime. This project starts from a
-different, structural observation, and it involves **two distinct determinisms**
-that must not be conflated. **Base determinism (self-containment): the base
-`𝒫 = {2, …, P_max}` builds every composite exactly up to `2·P_max`** — inside
-`(P_max, 2·P_max]` every composite is fully built from the base (all its prime
-factors lie in the base: `window_composite_smooth`), so an uncovered position can
-only be a new prime. Just beyond `2·P_max` self-containment breaks: the first
-composite requiring a prime *outside* the base appears (`2·nextprime(P_max)`), so a
-new prime becomes **necessary** — this is how far the base generates the integers
-on its own. Distinct from it, **generative determinism (the sieve's decision,
-uncovered ⟺ prime) reaches further**, throughout the deterministic zone
-`(P_max, P_max²)` (`void_iff_prime_in_deterministic_zone`), and breaks only at the
-square of the anchor (`determinism_breaks_above` exhibits the composite void `q²`).
-The window and its width are therefore not an assumption borrowed from Bertrand's
-statement — they are *derived* as the maximal self-contained territory of the base
-(`SelfContained.lean`, `window_self_contained`). The object is thus a
-single locked triple **(base, window, width)** in which `P_max` is at once the
-largest element of the base, the start of the window, and the window's width; the
-base is the complete run of consecutive primes up to `P_max` (no prime missing),
-and base and window co-scale with `P_max` rather than being independent parameters.
+tables, that every window `(n, 2n]` contains a prime — an *existence* question.
+This project started from a different question about the same window: **is every
+composite in `(P_k, 2·P_k]` already covered by a prime strictly below `P_k` (or by
+`2`)?** — i.e. does the window need any prime factor from *outside* itself? That
+question, not Bertrand's, is what the development answers first, and it answers it
+with an exact equivalence rather than an existence bound:
 
-From this single boundary the whole postulate is reduced to one localized
-quantitative atom: *the sieve of the base never covers its own window completely*.
-The governing quantity of the object is the **local insufficiency of the full base**
-over its own window `(P_max, 2P_max]` — the longest run of covered positions there;
-external gap functions (below) only upper-bound it.
+> `StructuralBertrand.prime_iff_uncovered_by_prev` — for `n ∈ (P_k, 2·P_k]`: `n` is
+> prime **iff** `n` is not covered by the base of primes below `P_k`.
+
+This is proved from pure divisibility: `ZeroForce.lean`'s Zero Effective Force
+lemma shows the only multiple of `P_k` in its own window is `2·P_k`, already
+covered by `2`, so `P_k` contributes zero new coverage to its own window; combined
+with the least-prime-factor bound (`LPF.lean`), this gives the equivalence with no
+appeal to counting or to the central binomial coefficient.
+
+**Generalization.** The same equivalence holds throughout the base's full
+deterministic reach, the zone `(P_k, P_k²)`, not only in the narrower window
+`(P_k, 2·P_k]`:
+
+> `StructuralBertrand.void_iff_prime_in_deterministic_zone` — for `n` in
+> `(P_k, P_k²)`: `n` is a void of the base of primes below `P_k` **iff** `n` is
+> prime.
+
+`Rings.lean`'s `determinism_breaks_above` shows this reach is exact: the
+equivalence genuinely fails once `n ≥ P_k²` (it exhibits a composite void, `q²`,
+at the square of the anchor, for `q` the least prime above `P_k`). So the
+deterministic reach of a prime base is `P_k²`; the window `(P_k, 2·P_k]` is simply
+the initial segment of this zone in which, in addition, a second and independent
+property holds — self-containment (below).
+
+**Self-containment — a separate, elementary fact, not to be conflated with the
+equivalence above.** Inside `(P_max, 2·P_max]` every composite is fully
+*buildable* from the base: all of its prime factors lie in `{2, …, P_max}`
+(`window_composite_smooth`, `Rings.lean`) — a purely elementary case-split on
+divisibility, independent of the LPF machinery behind `prime_iff_uncovered_by_prev`
+and not used by it. Just beyond `2·P_max` this buildability breaks: the first
+composite requiring a prime *outside* the base appears (`2·nextprime(P_max)`).
+`SelfContained.lean`'s `window_self_contained_bound`/`max_self_contained_width`
+derive the window's width `2·P_max` from this buildability boundary alone — a fact
+about the window's *size* (the container), not about whether it contains a prime
+(the content). It fixes *why* the width is `2·P_max` rather than something else,
+but plays no role in, and is not needed by, the void/prime equivalence above; it
+does feed the off-path binomial-coefficient route in §2 below (the S1 purity law
+uses the same buildability boundary). The object is thus a single locked triple
+**(base, window, width)** in which `P_max` is at once the largest element of the
+base, the start of the window, and the window's width; the base is the complete
+run of consecutive primes up to `P_max` (no prime missing), and base and window
+co-scale with `P_max` rather than being independent parameters.
+
+**Bertrand's postulate is a corollary.** Given `prime_iff_uncovered_by_prev`,
+existence of a prime in the window follows once the window is shown not to be
+*entirely* covered — the whole postulate reduces to one localized quantitative
+atom: *the sieve of the base never covers its own window completely*. This is
+where the quantitative closure (the central binomial coefficient, §2–3 below)
+enters — the same object Erdős used for his own, differently-motivated 1932 proof
+of the same postulate. Bertrand asked "is there a prime here?"; this project asked
+"where does deterministic certainty about primality end, and how far does it
+reach?" — different questions, proved by different means, that happen to agree on
+this object. The governing quantity of the corollary's closure is the **local
+insufficiency of the full base** over its own window `(P_max, 2P_max]` — the
+longest run of covered positions there; external gap functions (below) only
+upper-bound it.
 
 ## What is proved, and by what means
 
@@ -67,6 +110,8 @@ closure of `Main`. So the main theorem does not depend on Mathlib's Bertrand the
 Three layers, with distinct provenance:
 
 **1. The structural reduction (independent, this project).**
+This is the same reduction that yields the two headline equivalences of *Origin
+of the result* above (`prime_iff_uncovered_by_prev`, `void_iff_prime_in_deterministic_zone`):
 LPF bound, Zero Effective Force, structural weight `w ≥ 1`, self-containment
 (*why `2·P_max`*), the sparse regime closed unconditionally by a union bound
 (`Truncated.lean`), the deterministic zone `(P_k, P_k²)`, and the disjoint
@@ -211,11 +256,11 @@ replayed from Mathlib's own files are expected and harmless).
 |---|---|
 | `StructuralBertrand/Defs.lean` | Complete generative prime base, sieve coverage, window (Def. 2.1, Prop. 2.2) |
 | `StructuralBertrand/LPF.lean` | Least Prime Factor bound; uncovered ⇒ prime (Lemma 3.1, Cor. 3.2) |
-| `StructuralBertrand/ZeroForce.lean` | Zero Effective Force; composites covered by preceding base (Lemma 4.1, Cor. 4.2) |
+| `StructuralBertrand/ZeroForce.lean` | Zero Effective Force; composites covered by preceding base; **`prime_iff_uncovered_by_prev`** — headline equivalence (Lemma 4.1, Cor. 4.2) |
 | `StructuralBertrand/Weight.lean` | Structural weight `w ≥ 1`; expansion capacity `M' < P·φ(M')` (Lemma 4.3, Cor. 4.5) |
 | `StructuralBertrand/SelfContained.lean` | Self-containment fixes the window width (*why `2` / why `P_min`*) |
 | `StructuralBertrand/Truncated.lean` | Sparse-regime positivity by union bound, unconditional |
-| `StructuralBertrand/Rings.lean` | Ring collective: void/coverage dichotomy, determinism boundary, minFac telescope, interference (Legendre) identity, generalized family `(P_max, P_min·P_max]`; also the **off-path** small-anchor closures `P_k ≤ 83` (§1) and the S1 bridge to `C(2n,n)` (§2), neither used by `bertrand_chebyshev`'s proof term |
+| `StructuralBertrand/Rings.lean` | Ring collective: void/coverage dichotomy; **`void_iff_prime_in_deterministic_zone`** — headline equivalence generalized to the full zone `(P_k, P_k²)`, with **`determinism_breaks_above`** proving the reach exact; minFac telescope, interference (Legendre) identity, generalized family `(P_max, P_min·P_max]`; also the **off-path** small-anchor closures `P_k ≤ 83` (§1) and the S1 bridge to `C(2n,n)` (§2, which reuses the self-containment fact `window_composite_smooth`), neither used by `bertrand_chebyshev`'s proof term |
 | `StructuralBertrand/Newton.lean` | **Off-path** (§2): a second, unused derivation of the central binomial coefficient's window content — S1 divisibility, lower bound `4^n ≤ (2n+1)·C(2n,n)` from the Pascal row, empty window ⇒ old sources only |
 | `StructuralBertrand/BinomialBound.lean` | Upper bound `window_centralBinom_le`, reproved from Legendre/Kummer + primorial primitives (no Bertrand import) |
 | `StructuralBertrand/Threshold.lean` | Prime-free size inequality `threshold_inequality` (real convexity; adapted from Mathlib's analysis, not its Bertrand file) |
