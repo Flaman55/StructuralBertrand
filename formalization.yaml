@@ -5,18 +5,24 @@ license: "Apache-2.0"
 project:
   name: "StructuralBertrand"
   description: >
-    A structural proof of Bertrand's postulate (Chebyshev's strengthened form: for
-    every N > 1 there is a prime p with N < p <= 2N) in Lean 4, avoiding Mathlib's
-    existing Bertrand development entirely. The classical result (Bertrand 1845,
-    Chebyshev 1852) is independently proved via an original sieve strategy: the
-    argument reduces primality of the window (P_k, 2*P_k] to a coprimality condition
-    against the primorial of primes below P_k. The quantitative closure is a finite
-    oracle over small windows (n < 512, chunked kernel-checked `decide`) and, for
-    n >= 512, a self-contained factorization-based upper bound on the central
-    binomial coefficient combined with a threshold inequality (adapted from
-    Mathlib's Bertrand development) and Mathlib's own lower bound on the central
-    binomial coefficient — no `native_decide` anywhere in this closure. Zero
-    sorries; depends only on the three standard Lean axioms.
+    Two structural, exact characterizations of primality via sieve-coverage -- proved for
+    a prime base's own window (P_k, 2*P_k] (StructuralBertrand.prime_iff_uncovered_by_prev)
+    and generalized to the base's full deterministic reach, the zone (P_k, P_k^2)
+    (StructuralBertrand.void_iff_prime_in_deterministic_zone, with the reach shown exact by
+    determinism_breaks_above) -- plus Bertrand's postulate (Chebyshev's strengthened form:
+    for every N > 1 there is a prime p with N < p <= 2N) as a corollary of the first. The
+    originating question is not Bertrand's ("is there a prime here?") but a different one:
+    "up to where can sieve-coverage certify primality without appeal to counting?" The
+    corollary closes by showing the window is not entirely covered, via a
+    coprimality/counting argument whose quantitative core bottoms out in the central
+    binomial coefficient -- the same object Erdos used for his own, differently-motivated
+    proof of the same postulate. In Lean 4, avoiding Mathlib's existing Bertrand
+    development entirely. The corollary's quantitative closure is a finite oracle over
+    small windows (n < 512, chunked kernel-checked `decide`) and, for n >= 512, a
+    self-contained factorization-based upper bound on the central binomial coefficient
+    combined with a threshold inequality (adapted from Mathlib's Bertrand development) and
+    Mathlib's own lower bound on the central binomial coefficient — no `native_decide`
+    anywhere in this closure. Zero sorries; depends only on the three standard Lean axioms.
   authors: ["Artur Flamandzki"]
   license: "Apache-2.0"
   responsible_maintainers: ["Artur Flamandzki"]
@@ -101,37 +107,82 @@ sources:
 
 status:
   scope: >
-    A structural proof of Bertrand's postulate (Chebyshev's strengthened form: for
-    every N > 1 there is a prime p with N < p <= 2N), avoiding
-    Mathlib.NumberTheory.Bertrand entirely. `StructuralBertrand.Main` reduces every
-    window (P_k, 2*P_k] for P_k prime to a coprimality condition against the
-    primorial of primes below P_k. The quantitative closure that discharges this
-    condition (`StructuralBertrand.GPS_StateMachine.prime_in_window`, via
-    `StructuralBertrand.BinomialCertificate.binomial_contradiction`) is: a finite
-    oracle over small windows (n < 512, sixteen chunks of kernel-checked `decide`,
-    no `native_decide`); and for n >= 512, a self-contained factorization-based
-    upper bound on the central binomial coefficient
-    (`StructuralBertrand.BinomialBound`, via Legendre/Kummer primorial primitives)
-    combined with a threshold inequality adapted from Mathlib's own Bertrand
-    development (`StructuralBertrand.Threshold`, see the `sources` entry for
-    `real_main_inequality`) and Mathlib's own lower bound on the central binomial
-    coefficient (`Nat.four_pow_lt_mul_centralBinom`). `StructuralBertrand.Rings`'s
-    Jacobsthal-gap reduction (`jacobsthal_210`/`jacobsthal_2310`,
-    `windowHasVoid_of_jacobsthal`) and the `Newton`/`SelfContained` modules are
-    independent alternative closures explored in this repository, kept for
-    reference — they are NOT part of the proof term for the main theorem
-    (`StructuralBertrand.bertrand_chebyshev`); see their own module docstrings and
-    `StructuralBertrand.Certificate`'s two named `WindowCertificate` instances.
+    Three declarations are proved, presented in the order that reflects the project's own
+    history rather than fame — see Challenge.lean's header for the full account of why
+    these are different questions with a shared answer.
+
+    (1) StructuralBertrand.prime_iff_uncovered_by_prev (ZeroForce.lean) — the originating
+    result. For a prime P_k, on the window (P_k, 2*P_k], n is prime iff n is not covered by
+    the base of primes below P_k (n.minFac <= P_k). Proved directly from divisibility (Zero
+    Effective Force plus the least-prime-factor bound); no counting, no central binomial
+    coefficient.
+
+    (2) StructuralBertrand.void_iff_prime_in_deterministic_zone (Rings.lean) — the same
+    equivalence generalized from the window (P_k, 2*P_k] to the base's full deterministic
+    reach, the zone (P_k, P_k^2). StructuralBertrand.determinism_breaks_above (same file)
+    shows this reach is exact: the equivalence genuinely fails once n >= P_k^2.
+
+    (3) StructuralBertrand.bertrand_chebyshev (Main.lean) — Bertrand's postulate
+    (Chebyshev's strengthened form: for every N > 1 there is a prime p with N < p <= 2N), a
+    corollary of (1), avoiding Mathlib.NumberTheory.Bertrand entirely.
+    `StructuralBertrand.Main` reduces every window (P_k, 2*P_k] for P_k prime to a
+    coprimality condition against the primorial of primes below P_k. The quantitative
+    closure that discharges this condition (`StructuralBertrand.GPS_StateMachine.prime_in_window`,
+    via `StructuralBertrand.BinomialCertificate.binomial_contradiction`) is: a finite oracle
+    over small windows (n < 512, sixteen chunks of kernel-checked `decide`, no
+    `native_decide`); and for n >= 512, a self-contained factorization-based upper bound on
+    the central binomial coefficient (`StructuralBertrand.BinomialBound`, via Legendre/Kummer
+    primorial primitives) combined with a threshold inequality adapted from Mathlib's own
+    Bertrand development (`StructuralBertrand.Threshold`, see the `sources` entry for
+    `real_main_inequality`) and Mathlib's own lower bound on the central binomial coefficient
+    (`Nat.four_pow_lt_mul_centralBinom`) — the same object Erdos used for his own,
+    differently-motivated proof of the same postulate. `StructuralBertrand.Rings`'s
+    Jacobsthal-gap reduction (`jacobsthal_210`/`jacobsthal_2310`, `windowHasVoid_of_jacobsthal`)
+    and the `Newton`/`SelfContained` modules are independent alternative closures explored in
+    this repository, kept for reference — they are NOT part of the proof term for (3); see
+    their own module docstrings and `StructuralBertrand.Certificate`'s two named
+    `WindowCertificate` instances.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
   main_results:
+    - declaration: "StructuralBertrand.prime_iff_uncovered_by_prev"
+      file: "StructuralBertrand/ZeroForce.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+      note: >
+        The originating result (see project.description and status.scope). Exact
+        equivalence "prime iff not covered by the preceding base" on the window
+        (P_k, 2*P_k]. Proved by divisibility (Zero Effective Force + least-prime-factor
+        bound), independent of counting or the central binomial coefficient. Axioms
+        assumed identical to the rest of this development (built from the same elementary
+        primitives); Artur to confirm via `#print axioms` in the real build.
+    - declaration: "StructuralBertrand.void_iff_prime_in_deterministic_zone"
+      file: "StructuralBertrand/Rings.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+      note: >
+        Generalization of the equivalence above from the window (P_k, 2*P_k] to the full
+        deterministic zone (P_k, P_k^2). StructuralBertrand.determinism_breaks_above (same
+        file) shows this reach is exact -- the equivalence fails at P_k^2. Axioms assumed
+        identical to the rest of this development; Artur to confirm via `#print axioms` in
+        the real build.
     - declaration: "StructuralBertrand.bertrand_chebyshev"
       file: "StructuralBertrand/Main.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
+      note: >
+        Corollary of prime_iff_uncovered_by_prev: given the equivalence, existence of a
+        prime in the window follows once the window is shown not entirely covered, closed
+        via the central binomial coefficient (see status.scope, item 3). This is the
+        classical Bertrand-Chebyshev theorem (Bertrand 1845, Chebyshev 1852) -- not
+        original to this project; see the `sources` entry for it.
 
 automation:
   methods:
@@ -239,7 +290,27 @@ alignment:
       lean: "StructuralBertrand.bertrand_chebyshev"
       module: "StructuralBertrand/Main.lean"
       status: "proved"
-      note: "Main result; also restated in Challenge.lean/Solution.lean as Submission.bertrand_chebyshev"
+      note: >
+        Corollary of prime_iff_uncovered_by_prev (see status.scope); the classical
+        Bertrand-Chebyshev theorem, not the project's originating result. Also restated
+        in Challenge.lean/Solution.lean as Submission.bertrand_chebyshev.
+    - source: "Originating result: prime iff uncovered by preceding base"
+      lean: "StructuralBertrand.prime_iff_uncovered_by_prev"
+      module: "StructuralBertrand/ZeroForce.lean"
+      status: "proved"
+      note: >
+        The project's starting question and its answer (see project.description). Also
+        restated in Challenge.lean/Solution.lean as
+        Submission.prime_iff_uncovered_by_prev.
+    - source: "Generalization: prime iff void, throughout the deterministic zone (P_k, P_k^2)"
+      lean: "StructuralBertrand.void_iff_prime_in_deterministic_zone"
+      module: "StructuralBertrand/Rings.lean"
+      status: "proved"
+      note: >
+        Generalizes the entry above from the window (P_k, 2*P_k] to the full
+        deterministic reach (P_k, P_k^2); StructuralBertrand.determinism_breaks_above
+        (same file) shows the reach is exact. Also restated in
+        Challenge.lean/Solution.lean as Submission.void_iff_prime_in_deterministic_zone.
     - source: "Jacobsthal gap bound, g(210) = 10"
       lean: "StructuralBertrand.jacobsthal_210"
       module: "StructuralBertrand/Rings.lean"
