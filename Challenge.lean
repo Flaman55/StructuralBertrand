@@ -1,6 +1,5 @@
-import StructuralBertrand.ZeroForce
-import StructuralBertrand.Rings
 import Mathlib.Data.Nat.Prime.Basic
+import Mathlib.Data.Finset.Basic
 
 /-!
 # Advertised statements
@@ -35,6 +34,17 @@ development in this repository's `StructuralBertrand/` directory. That developme
 **not** import `Mathlib.NumberTheory.Bertrand`; the quantitative core for (3) is an original
 structural sieve described in the accompanying paper (`LaTex/A Structural Sieve for Bertrands
 Postulate.pdf`).
+
+This file itself deliberately imports nothing from `StructuralBertrand/` — only Mathlib. A
+canonical challenge file must be checkable in isolation, independent of the submitter's own
+library, so (1) and (2) below state their project-specific predicates unfolded to what they
+literally mean rather than by name: `StructuralBertrand.SieveCovered P n` is `n.minFac ≤ P`
+(`Defs.lean`), and `StructuralBertrand.isVoid S n` is `∀ p ∈ S, ¬ p ∣ n` (`Rings.lean`, via
+`aligned p n := p ∣ n`). The unfolded and named forms are definitionally equal, so a proof
+term from the named version still checks against this unfolded statement — but Palomar's
+comparator does a literal statement match rather than a `defeq` check, so `Solution.lean`
+restates (1) and (2) here verbatim, unfolded, and only calls the named versions inside the
+proof term.
 -/
 
 /-- **Original question: is every composite in the window covered by the preceding base?**
@@ -43,7 +53,7 @@ primes below `P_k` (`n.minFac ≤ P_k`). Proved by exact divisibility, not by co
 theorem Submission.prime_iff_uncovered_by_prev
     {P_k : ℕ} (hP : Nat.Prime P_k) {n : ℕ}
     (hn_lo : P_k < n) (hn_hi : n ≤ 2 * P_k) (hn2 : 2 ≤ n) :
-    n.Prime ↔ ¬ StructuralBertrand.SieveCovered P_k n := by
+    n.Prime ↔ ¬ (n.minFac ≤ P_k) := by
   sorry
 
 /-- **Generalization: the same equivalence holds throughout the deterministic zone
@@ -52,7 +62,7 @@ primes below `P_k` iff `n` is prime. This reach is exact (see `Rings.lean`'s
 `determinism_breaks_above`: the equivalence fails once `n ≥ P_k²`). -/
 theorem Submission.void_iff_prime_in_deterministic_zone
     {Pk n : ℕ} (hPk3 : 2 < Pk) (hlo : Pk < n) (hhi : n < Pk ^ 2) :
-    StructuralBertrand.isVoid ((Finset.range Pk).filter Nat.Prime) n ↔ Nat.Prime n := by
+    (∀ p ∈ (Finset.range Pk).filter Nat.Prime, ¬ p ∣ n) ↔ Nat.Prime n := by
   sorry
 
 /-- **Bertrand–Chebyshev bound** (corollary of the equivalence above). For every `N > 1`
