@@ -40,18 +40,28 @@ appeal to counting or to the central binomial coefficient.
 
 **Generalization.** The same equivalence holds throughout the base's full
 deterministic reach, the zone `(P_k, P_k²)`, not only in the narrower window
-`(P_k, 2·P_k]`:
+`(P_k, 2·P_k]` — and, unlike the first result, the *within-zone* direction
+needs no primality hypothesis on the anchor: `Rings.lean`'s
+`void_iff_prime_in_deterministic_zone` holds for **every** natural `P_k > 2`,
+prime or composite. This is only about the anchor `P_k`, not about the base
+itself: the base is always "the primes below `P_k`" — only primes ever sit in
+it, and the numbers it can build (by combining its members) are always
+composite, whichever `P_k` is:
 
-> `StructuralBertrand.void_iff_prime_in_deterministic_zone` — for `n` in
-> `(P_k, P_k²)`: `n` is a void of the base of primes below `P_k` **iff** `n` is
-> prime.
+> `StructuralBertrand.void_iff_prime_in_deterministic_zone` — for any natural
+> `P_k > 2` and `n` in `(P_k, P_k²)`: `n` is a void of the base of primes below
+> `P_k` **iff** `n` is prime.
 
-`Rings.lean`'s `determinism_breaks_above` shows this reach is exact: the
-equivalence genuinely fails once `n ≥ P_k²` (it exhibits a composite void, `q²`,
-at the square of the anchor, for `q` the least prime above `P_k`). So the
-deterministic reach of a prime base is `P_k²`; the window `(P_k, 2·P_k]` is simply
-the initial segment of this zone in which, in addition, a second and independent
-property holds — self-containment (below).
+`Rings.lean`'s `determinism_breaks_above` shows this `P_k²` reach is exact —
+the equivalence genuinely fails once `n ≥ P_k²` (it exhibits a composite void,
+`q²`, for `q` the least prime above `P_k`) — but only for a **prime** `P_k`;
+that lemma carries a `Nat.Prime P_k` hypothesis the within-zone equivalence
+above does not need. So for a prime anchor the reach `P_k²` is proven both
+achieved and tight; for a composite anchor only "achieved" is proven here,
+tightness is open. The window `(P_k, 2·P_k]` from the first result is simply
+the initial segment of the zone in which, in addition, a second and
+independent property holds — self-containment (below) — and that first
+result, like the tightness lemma, *does* require `P_k` prime.
 
 **Self-containment — a separate, elementary fact, not to be conflated with the
 equivalence above.** Inside `(P_max, 2·P_max]` every composite is fully
@@ -217,21 +227,21 @@ therefore ignore `Erdos.lean` entirely and still have a fully `decide`-only path
 
 | Component | Pin |
 |---|---|
-| Lean toolchain | `leanprover/lean4:v4.28.0` (file `lean-toolchain`) |
-| Mathlib | tag `v4.28.0`, commit `8f9d9cff6bd728b17a24e163c9402775d9e6a365` |
+| Lean toolchain | `leanprover/lean4:v4.35.0-rc2` (file `lean-toolchain`) |
+| Mathlib | tag `v4.35.0-rc2`, commit `065356127b1dc0016f66b7283ce0ce2c4055aa55` |
 
-Transitive dependencies (from `lake-manifest.json`, manifest format `1.1.0`):
+Transitive dependencies (from `lake-manifest.json`, manifest format `1.2.0`):
 
 | Package | Commit |
 |---|---|
-| batteries | `495c008c3e3f4fb4256ff5582ddb3abf3198026f` |
-| aesop | `f642a64c76df8ba9cb53dba3b919425a0c2aeaf1` |
-| proofwidgets | `be3b2e63b1bbf496c478cef98b86972a37c1417d` |
-| Qq | `b8f98e9087e02c8553945a2c5abf07cec8e798c3` |
-| importGraph | `85b59af46828c029a9168f2f9c35119bd0721e6e` |
-| LeanSearchClient | `c5d5b8fe6e5158def25cd28eb94e4141ad97c843` |
-| plausible | `55c8532eb21ec9f6d565d51d96b8ca50bd1fbef3` |
-| Cli | `4f10f47646cb7d5748d6f423f4a07f98f7bbcc9e` |
+| batteries | `ed9b316aabe389fec1ef43c3326ab48c7e59be42` |
+| aesop | `75d936c7af167cc93fac0d31237682fc2204591d` |
+| proofwidgets | `4c70ac059693669e5756e32a7a94b57ee1e99dc5` |
+| Qq | `786b7acdca7eb4e9c76c5d1d5bd810e7e5c56334` |
+| importGraph | `10930f8138f0462dbd744a91fc03a16fae0e046f` |
+| LeanSearchClient | `95e037bfdc31d3916ac615446847fb01960e2719` |
+| plausible | `e50948299c4dc4a4c21b1c34b6a6a4fddc19f912` |
+| Cli | `2842b9871b04862f944c032e34052cb9448ccb71` |
 
 The pinned commits are recorded in `lake-manifest.json`; keep that file under
 version control so the exact dependency graph is reproducible.
