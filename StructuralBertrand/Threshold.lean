@@ -46,12 +46,17 @@ theorem real_threshold_inequality {x : ℝ} (x_large : (512 : ℝ) ≤ x) :
           (Set.Ioi_subset_Ioi (by norm_num)) (convex_Ioi 0.5)
       convert ((strictConcaveOn_sqrt_mul_log_Ioi.concaveOn.comp_linearMap
         ((2 : ℝ) • LinearMap.id))) using 1
-      ext x
-      simp only [Set.mem_Ioi, Set.mem_preimage, LinearMap.smul_apply,
-        LinearMap.id_coe, id_eq, smul_eq_mul]
-      rw [← mul_lt_mul_iff_of_pos_left (two_pos)]
-      norm_num1
-      rfl
+      · ext x
+        simp only [Set.mem_Ioi, Set.mem_preimage, LinearMap.smul_apply,
+          LinearMap.id_coe, id_eq, smul_eq_mul]
+        rw [← mul_lt_mul_iff_of_pos_left (two_pos)]
+        norm_num1
+        rfl
+      · -- Mathlib bump (v4.35.0-rc2): `comp_linearMap` now also leaves this function-equality
+        -- goal, which `using 1` didn't produce before. `(2 • LinearMap.id) x` is `2 * x` by
+        -- `smul_eq_mul`, so both sides reduce to `√(2 * x) * log (2 * x)`.
+        ext x
+        simp [LinearMap.id_coe, id_eq, smul_eq_mul]
     apply ConvexOn.smul
     · refine div_nonneg (log_nonneg (by norm_num1)) (by norm_num1)
     · exact convexOn_id (convex_Ioi (0.5 : ℝ))
@@ -104,7 +109,9 @@ theorem threshold_inequality {n : ℕ} (n_large : 512 ≤ n) :
   push_cast
   calc (n : ℝ) * (2 * n : ℝ) ^ sqrt (2 * n) * (4 : ℝ) ^ (2 * n / 3)
       ≤ (n : ℝ) * (2 * n : ℝ) ^ Real.sqrt (2 * n : ℝ) * (4 : ℝ) ^ ((2 * n : ℝ) / 3) := by
-        gcongr <;> first | exact hpow1 | exact hpow2
+        -- Mathlib bump (v4.35.0-rc2): `gcongr` now closes both side goals itself via `hpow1`/
+        -- `hpow2` in context, so the `<;> first | ...` fallback is dead code.
+        gcongr
     _ ≤ (4 : ℝ) ^ (n : ℝ) := real_threshold_inequality (by exact_mod_cast n_large)
     _ = (4 : ℝ) ^ n := by rw [Real.rpow_natCast]
 

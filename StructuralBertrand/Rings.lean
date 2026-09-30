@@ -420,7 +420,9 @@ lemma gps_window_card (Pk : ℕ) : (gps_window Pk).card = Pk := by
 lemma windowHasVoid_iff_coveredCount_lt {Pk : ℕ} :
     windowHasVoid Pk ↔ coveredCount Pk < Pk := by
   simp only [windowHasVoid, coveredCount]
-  have hsplit := Finset.filter_card_add_filter_neg_card_eq_card
+  -- Mathlib bump (v4.35.0-rc2): `filter_card_add_filter_neg_card_eq_card` renamed to
+  -- `card_filter_add_card_filter_not` (the deprecated alias was removed in this version).
+  have hsplit := Finset.card_filter_add_card_filter_not
     (s := gps_window Pk) (p := fun n => isVoid ((Finset.range Pk).filter Nat.Prime) n)
   rw [gps_window_card] at hsplit
   constructor
@@ -694,7 +696,10 @@ theorem gwindowHasVoid_of_wide {Pmin Pmax : ℕ}
 theorem gwindow_subset {Pmin Pmin' Pmax : ℕ} (h : Pmin ≤ Pmin') :
     gwindow Pmin Pmax ⊆ gwindow Pmin' Pmax := by
   rw [gwindow, gwindow]
-  exact Finset.Ioc_subset_Ioc_right (mul_le_mul_right' h Pmax)
+  -- Mathlib bump (v4.35.0-rc2): the unprimed/primed `mul_le_mul_left`/`mul_le_mul_right` names
+  -- swapped meaning; the old `mul_le_mul_right' (h : a ≤ b) (c) : a * c ≤ b * c` is now
+  -- `mul_le_mul_left`.
+  exact Finset.Ioc_subset_Ioc_right (mul_le_mul_left h Pmax)
 
 /-- **Direction of the family: bottom to top.** A void in the window `Pmin` propagates to
     EVERY wider `Pmin' ≥ Pmin` — the narrower window is a subset of the wider, and the base and
@@ -1406,7 +1411,8 @@ theorem interference_step {p : ℕ} (hp : Nat.Prime p) {S : Finset ℕ}
     intro q hq
     exact (Nat.coprime_primes hp (hS q hq)).mpr (fun h => hpS (h ▸ hq))
   -- Split the survivors of S in (a,b] according to divisibility by p
-  have hsplit := Finset.filter_card_add_filter_neg_card_eq_card
+  -- Mathlib bump (v4.35.0-rc2): renamed to `card_filter_add_card_filter_not` (see note above).
+  have hsplit := Finset.card_filter_add_card_filter_not
     (s := (Finset.Ioc a b).filter (fun n => Nat.Coprime n M))
     (p := fun n => p ∣ n)
   -- (I) those NOT divisible by p = survivors of the system S∪{p}
