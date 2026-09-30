@@ -146,7 +146,7 @@ status:
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
   main_results:
-    - declaration: "StructuralBertrand.prime_iff_uncovered_by_prev"
+    - declaration: "Submission.prime_iff_uncovered_by_prev"
       file: "StructuralBertrand/ZeroForce.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -159,7 +159,7 @@ status:
         bound), independent of counting or the central binomial coefficient. Axioms
         assumed identical to the rest of this development (built from the same elementary
         primitives); Artur to confirm via `#print axioms` in the real build.
-    - declaration: "StructuralBertrand.void_iff_prime_in_deterministic_zone"
+    - declaration: "Submission.void_iff_prime_in_deterministic_zone"
       file: "StructuralBertrand/Rings.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -171,7 +171,7 @@ status:
         file) shows this reach is exact -- the equivalence fails at P_k^2. Axioms assumed
         identical to the rest of this development; Artur to confirm via `#print axioms` in
         the real build.
-    - declaration: "StructuralBertrand.bertrand_chebyshev"
+    - declaration: "Submission.bertrand_chebyshev"
       file: "StructuralBertrand/Main.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
