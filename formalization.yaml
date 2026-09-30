@@ -7,9 +7,10 @@ project:
   description: >
     Two structural, exact characterizations of primality via sieve-coverage -- proved for
     a prime base's own window (P_k, 2*P_k] (StructuralBertrand.prime_iff_uncovered_by_prev)
-    and generalized to the base's full deterministic reach, the zone (P_k, P_k^2)
-    (StructuralBertrand.void_iff_prime_in_deterministic_zone, with the reach shown exact by
-    determinism_breaks_above) -- plus Bertrand's postulate (Chebyshev's strengthened form:
+    and generalized to the base's full deterministic reach, the zone (P_k, P_k^2), for
+    every P_k > 2, prime or composite (StructuralBertrand.void_iff_prime_in_deterministic_zone;
+    determinism_breaks_above shows this reach is exact for a prime P_k, tightness for a
+    composite P_k is open) -- plus Bertrand's postulate (Chebyshev's strengthened form:
     for every N > 1 there is a prime p with N < p <= 2N) as a corollary of the first. The
     originating question is not Bertrand's ("is there a prime here?") but a different one:
     "up to where can sieve-coverage certify primality without appeal to counting?" The
@@ -105,6 +106,24 @@ sources:
       content, not part of Mathlib's own Bertrand development, so it is not listed
       as a separate adapted source.
 
+  - title: "Trial division (the √n primality bound)"
+    authors: ["folklore"]
+    id: "https://en.wikipedia.org/wiki/Trial_division"
+    type: "classical-result"
+    license: "n/a"
+    author_endorsement: "n/a"
+    relationship: "reformulates"
+    note: >
+      The classical fact that a composite n has a prime factor at most sqrt(n) is folklore,
+      with no single attributable source. prime_iff_uncovered_by_prev and
+      void_iff_prime_in_deterministic_zone restate this fact for n in their respective
+      ranges (P_k/P_k^2 is exactly the sqrt(n) bound) rather than proving a new bound; see
+      Challenge.lean's "Relationship to trial division" note and README.md's matching
+      section for what is and is not novel about the restatement -- restricting the divisor
+      set, fixed in advance, to the frozen base of primes below P_k, rather than searching
+      every prime up to sqrt(n) as n varies. `author_endorsement: n/a` and `license: n/a`
+      because this is unattributed classical mathematics, not a specific authored work.
+
 status:
   scope: >
     Three declarations are proved, presented in the order that reflects the project's own
@@ -119,8 +138,10 @@ status:
 
     (2) StructuralBertrand.void_iff_prime_in_deterministic_zone (Rings.lean) — the same
     equivalence generalized from the window (P_k, 2*P_k] to the base's full deterministic
-    reach, the zone (P_k, P_k^2). StructuralBertrand.determinism_breaks_above (same file)
-    shows this reach is exact: the equivalence genuinely fails once n >= P_k^2.
+    reach, the zone (P_k, P_k^2), and this within-zone direction holds for every P_k > 2,
+    prime or composite. StructuralBertrand.determinism_breaks_above (same file) shows this
+    reach is exact for a prime P_k: the equivalence genuinely fails once n >= P_k^2.
+    Tightness for a composite P_k is not established here.
 
     (3) StructuralBertrand.bertrand_chebyshev (Main.lean) — Bertrand's postulate
     (Chebyshev's strengthened form: for every N > 1 there is a prime p with N < p <= 2N), a
@@ -151,24 +172,30 @@ status:
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
-      literature_dependencies: []
+      literature_dependencies: ["https://en.wikipedia.org/wiki/Trial_division"]
       note: >
         The originating result (see project.description and status.scope). Exact
         equivalence "prime iff not covered by the preceding base" on the window
         (P_k, 2*P_k]. Proved by divisibility (Zero Effective Force + least-prime-factor
-        bound), independent of counting or the central binomial coefficient. Axioms
-        assumed identical to the rest of this development (built from the same elementary
-        primitives); Artur to confirm via `#print axioms` in the real build.
+        bound), independent of counting or the central binomial coefficient. Restates the
+        classical trial-division bound for n in this window against a divisor set fixed in
+        advance (see the `sources` entry for trial division and Challenge.lean's own note).
+        Axioms assumed identical to the rest of this development (built from the same
+        elementary primitives); Artur to confirm via `#print axioms` in the real build.
     - declaration: "Submission.void_iff_prime_in_deterministic_zone"
       file: "StructuralBertrand/Rings.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
-      literature_dependencies: []
+      literature_dependencies: ["https://en.wikipedia.org/wiki/Trial_division"]
       note: >
         Generalization of the equivalence above from the window (P_k, 2*P_k] to the full
-        deterministic zone (P_k, P_k^2). StructuralBertrand.determinism_breaks_above (same
-        file) shows this reach is exact -- the equivalence fails at P_k^2. Axioms assumed
+        deterministic zone (P_k, P_k^2); this within-zone direction holds for every P_k > 2,
+        prime or composite. Also restates the classical trial-division bound (see the
+        `sources` entry for trial division and Challenge.lean's own note).
+        StructuralBertrand.determinism_breaks_above (same file) shows
+        this reach is exact for a prime P_k -- the equivalence fails at P_k^2; tightness for
+        a composite P_k is open. Axioms assumed
         identical to the rest of this development; Artur to confirm via `#print axioms` in
         the real build.
     - declaration: "Submission.bertrand_chebyshev"
@@ -308,8 +335,9 @@ alignment:
       status: "proved"
       note: >
         Generalizes the entry above from the window (P_k, 2*P_k] to the full
-        deterministic reach (P_k, P_k^2); StructuralBertrand.determinism_breaks_above
-        (same file) shows the reach is exact. Also restated in
+        deterministic reach (P_k, P_k^2), holding for every P_k > 2, prime or composite;
+        StructuralBertrand.determinism_breaks_above (same file) shows the reach is exact
+        for a prime P_k (tightness for a composite P_k is open). Also restated in
         Challenge.lean/Solution.lean as Submission.void_iff_prime_in_deterministic_zone.
     - source: "Jacobsthal gap bound, g(210) = 10"
       lean: "StructuralBertrand.jacobsthal_210"

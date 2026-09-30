@@ -10,7 +10,8 @@ to `bertrand_chebyshev`, is machine-checked. Two headline results are exact
 structural equivalences, not existence bounds: `StructuralBertrand.prime_iff_uncovered_by_prev`
 (window `(P_k, 2·P_k]`) and its generalization
 `StructuralBertrand.void_iff_prime_in_deterministic_zone` (the full deterministic
-zone `(P_k, P_k²)`, with the reach shown exact by `determinism_breaks_above`).
+zone `(P_k, P_k²)`, holding for every `P_k > 2`, prime or composite; the reach is
+shown exact for a **prime** `P_k` by `determinism_breaks_above`).
 `StructuralBertrand.bertrand_chebyshev` is a **corollary** of the first — see
 *Origin of the result* below for why. The main theorem does **not** use
 Mathlib's proof of Bertrand's postulate (`Nat.bertrand` /
@@ -62,6 +63,22 @@ tightness is open. The window `(P_k, 2·P_k]` from the first result is simply
 the initial segment of the zone in which, in addition, a second and
 independent property holds — self-containment (below) — and that first
 result, like the tightness lemma, *does* require `P_k` prime.
+
+**Relationship to trial division.** The bound `P_k²` is the same bound as the classical
+trial-division primality criterion — a composite `n` has a prime factor at most `√n`, and
+`n < P_k²` iff `√n < P_k` — so the equivalence above restates that classical fact for `n`
+inside the zone rather than introducing a new bound. What it changes is *whose* primes get
+consulted. Trial division searches over every prime up to `√n`, a set that grows with `n`.
+This development instead fixes the divisor set once, in advance of `n`: the frozen, finite
+base `{primes < P_k}`, treated as if no prime `≥ P_k` existed yet. Inside that restricted
+world, "covered" (not void) means *built purely from base elements* — a composite `n` in the
+zone always factors this way, so the base alone certifies it, with no reference to any prime
+outside itself. A void `n` is not "a composite the base failed to build": it has no base
+divisor at all, and combined with `n < P_k²` that absence of any base divisor is itself the
+proof that `n` is prime — a new prime the fixed base cannot yet see, not a gap in its
+coverage. So the equivalence is the trial-division criterion viewed from the base's side:
+how far a single, fixed, finite set of primes can certify primality entirely on its own,
+before it must ever consult a prime beyond itself.
 
 **Self-containment — a separate, elementary fact, not to be conflated with the
 equivalence above.** Inside `(P_max, 2·P_max]` every composite is fully

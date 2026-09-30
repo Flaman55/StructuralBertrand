@@ -18,8 +18,10 @@ of fame:
    the central binomial coefficient.
 2. `Submission.void_iff_prime_in_deterministic_zone` — the same equivalence, generalized from
    the window `(P_k, 2·P_k]` to the full deterministic reach of the base, the zone
-   `(P_k, P_k²)`. `Rings.lean`'s `determinism_breaks_above` shows this reach is exact: the
-   equivalence genuinely fails once `n ≥ P_k²`.
+   `(P_k, P_k²)` — this direction holds for every `P_k > 2`, prime or composite.
+   `Rings.lean`'s `determinism_breaks_above` shows this reach is exact for a **prime**
+   `P_k`: the equivalence genuinely fails once `n ≥ P_k²`. Tightness for a composite `P_k`
+   is not established here.
 3. `Submission.bertrand_chebyshev` — Bertrand's postulate in its Chebyshev-strengthened form
    (for every integer `N > 1` there is a prime strictly greater than `N` and at most `2 * N`).
    This is a **corollary** of (1): given the equivalence, existence of a prime in the window
@@ -28,6 +30,16 @@ of fame:
    own, differently-motivated proof of the same postulate) enters. Bertrand asked "is there a
    prime here?"; this project asked "where does deterministic certainty about primality end?"
    — different questions, proved by different means, that happen to agree on this object.
+
+**Relationship to trial division.** (1) and (2) restate, for `n` in their respective ranges,
+the classical trial-division fact that a composite has a prime factor at most `√n` — the
+bound `P_k`/`P_k²` here is exactly that `√n` bound, not a new one. What is not classical is
+that the divisor set is fixed *before* `n` is chosen: only the frozen base `{primes < P_k}`
+is ever consulted, as if no prime `≥ P_k` existed yet, instead of searching every prime up to
+`√n` as `n` varies. "Covered" (not void) means *built purely from base elements*; a void `n`
+has no base divisor at all, which forces `n` itself to be the new prime the fixed base cannot
+see — not "a composite the base failed to build". So (1)/(2) are trial division viewed from
+the base's side: how far one fixed, finite set of primes can certify primality unaided.
 
 All three are discharged in `Solution.lean` by invoking the fully independent structural
 development in this repository's `StructuralBertrand/` directory. That development does
@@ -57,9 +69,10 @@ theorem Submission.prime_iff_uncovered_by_prev
   sorry
 
 /-- **Generalization: the same equivalence holds throughout the deterministic zone
-`(P_k, P_k²)`**, not only in the window `(P_k, 2·P_k]`. `n` is a void with respect to the
-primes below `P_k` iff `n` is prime. This reach is exact (see `Rings.lean`'s
-`determinism_breaks_above`: the equivalence fails once `n ≥ P_k²`). -/
+`(P_k, P_k²)`**, not only in the window `(P_k, 2·P_k]`, for every `P_k > 2` whether prime
+or composite. `n` is a void with respect to the primes below `P_k` iff `n` is prime. For a
+**prime** `P_k` this reach is exact (see `Rings.lean`'s `determinism_breaks_above`: the
+equivalence fails once `n ≥ P_k²`); tightness for a composite `P_k` is open. -/
 theorem Submission.void_iff_prime_in_deterministic_zone
     {Pk n : ℕ} (hPk3 : 2 < Pk) (hlo : Pk < n) (hhi : n < Pk ^ 2) :
     (∀ p ∈ (Finset.range Pk).filter Nat.Prime, ¬ p ∣ n) ↔ Nat.Prime n := by
