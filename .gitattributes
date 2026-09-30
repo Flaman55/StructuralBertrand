@@ -1,0 +1,7 @@
+# Force LF line endings regardless of what tool/OS last touched a file.
+# Root cause of the recurring Palomar patch_format failure: OneDrive/Windows
+# editors kept resaving .gitignore/Challenge.lean/README.md/Solution.lean/
+# comparator.json with CRLF, which `git diff --check` (Palomar's patch_format
+# phase) flags as trailing whitespace on every line. Normalizing on checkout
+# and commit stops that from recurring.
+* text=auto eol=lf
