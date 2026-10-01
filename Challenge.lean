@@ -36,10 +36,14 @@ the classical trial-division fact that a composite has a prime factor at most `�
 bound `P_k`/`P_k²` here is exactly that `√n` bound, not a new one. What is not classical is
 that the divisor set is fixed *before* `n` is chosen: only the frozen base `{primes < P_k}`
 is ever consulted, as if no prime `≥ P_k` existed yet, instead of searching every prime up to
-`√n` as `n` varies. "Covered" (not void) means *built purely from base elements*; a void `n`
-has no base divisor at all, which forces `n` itself to be the new prime the fixed base cannot
-see — not "a composite the base failed to build". So (1)/(2) are trial division viewed from
-the base's side: how far one fixed, finite set of primes can certify primality unaided.
+`√n` as `n` varies. "Covered" (not void) means *has a prime divisor in the base* — not that
+`n` factors entirely into base elements (that stronger, separate claim is self-containment,
+proved only on the narrower window `(P_k, 2·P_k]`; e.g. for `P_k = 10`, `n = 22 = 2 · 11` is
+covered by `2` alone, though `11` sits outside the base). A single base divisor already
+forces compositeness via the least-prime-factor bound. A void `n` has no base divisor at
+all, which forces `n` itself to be the new prime the fixed base cannot see — not "a composite
+the base failed to build". So (1)/(2) are trial division viewed from the base's side: how far
+one fixed, finite set of primes can certify primality unaided.
 
 All three are discharged in `Solution.lean` by invoking the fully independent structural
 development in this repository's `StructuralBertrand/` directory. That development does

@@ -71,12 +71,17 @@ inside the zone rather than introducing a new bound. What it changes is *whose* 
 consulted. Trial division searches over every prime up to `√n`, a set that grows with `n`.
 This development instead fixes the divisor set once, in advance of `n`: the frozen, finite
 base `{primes < P_k}`, treated as if no prime `≥ P_k` existed yet. Inside that restricted
-world, "covered" (not void) means *built purely from base elements* — a composite `n` in the
-zone always factors this way, so the base alone certifies it, with no reference to any prime
-outside itself. A void `n` is not "a composite the base failed to build": it has no base
-divisor at all, and combined with `n < P_k²` that absence of any base divisor is itself the
-proof that `n` is prime — a new prime the fixed base cannot yet see, not a gap in its
-coverage. So the equivalence is the trial-division criterion viewed from the base's side:
+world, "covered" (not void) means *has a prime divisor in the base* — not that `n` factors
+entirely into base elements. `P_k = 10, n = 22 = 2 · 11` is covered (`minFac(22) = 2 ≤ 10`)
+although its other factor, `11`, is outside the base; full base-only factorization is the
+separate, stronger self-containment property (below), proved only on the narrower window.
+What the base-divisor fact alone already gives, by the least-prime-factor bound, is enough
+to certify compositeness: `n.minFac ≤ P_k < n` forces `n.minFac ≠ n`, so `n` is composite. A
+void `n` is not "a composite the base failed to build": it has no base divisor at all, and
+combined with `n < P_k²` that absence is itself the proof that `n` is prime — if `n` were
+composite its least prime factor would be at most `√n < P_k`, i.e. in the base, contradicting
+voidness. So voidness means a new prime the fixed base cannot yet see, not a gap in its
+coverage. The equivalence is the trial-division criterion viewed from the base's side:
 how far a single, fixed, finite set of primes can certify primality entirely on its own,
 before it must ever consult a prime beyond itself.
 
